@@ -315,8 +315,14 @@ func (p *Process) SetPending() {
 	p.Progress.Status = StatusPending
 }
 
-func (p *Process) SetMetadata() error {
-	cmd := exec.Command(config.Instance().DownloaderPath, p.Url, "-J")
+func (p *Process) SetMetadata(useCookies bool) error {
+	params := []string{p.Url, "-J"}
+
+	if useCookies {
+		params = append(params, "--cookies=cookies.txt")
+	}
+
+	cmd := exec.Command(config.Instance().DownloaderPath, params...)
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 
 	stdout, err := cmd.StdoutPipe()
@@ -339,6 +345,12 @@ func (p *Process) SetMetadata() error {
 		return err
 	}
 
+	var bufferedStderr bytes.Buffer
+
+	go func() {
+		io.Copy(&bufferedStderr, stderr)
+	}()
+
 	info := DownloadInfo{
 		URL:       p.Url,
 		CreatedAt: time.Now(),
@@ -348,16 +360,7 @@ func (p *Process) SetMetadata() error {
 		return err
 	}
 
-	var bufferedStderr bytes.Buffer
-
-	go func() {
-		io.Copy(&bufferedStderr, stderr)
-	}()
-
-	slog.Info("retrieving metadata",
-		slog.String("id", p.getShortId()),
-		slog.String("url", p.Url),
-	)
+	slog.Info("retrieving metadata", slog.String("id", p.getShortId()), slog.String("url", p.Url))
 
 	if err := json.NewDecoder(stdout).Decode(&info); err != nil {
 		return err
@@ -367,6 +370,10 @@ func (p *Process) SetMetadata() error {
 	p.Progress.Status = StatusPending
 
 	if err := cmd.Wait(); err != nil {
+		return nil
+	}
+
+	if bufferedStderr.Len() > 0 {
 		return errors.New(bufferedStderr.String())
 	}
 

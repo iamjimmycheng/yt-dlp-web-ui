@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"slices"
 
 	evbus "github.com/asaskevich/EventBus"
 	"github.com/marcopeocchi/yt-dlp-web-ui/server/config"
@@ -102,7 +103,7 @@ func (m *MessageQueue) metadataSubscriber() {
 			return
 		}
 
-		if err := p.SetMetadata(); err != nil {
+		if err := p.SetMetadata(slices.Contains(p.Params, "--cookies=cookies.txt")); err != nil {
 			slog.Error("failed to retrieve metadata",
 				slog.String("id", p.getShortId()),
 				slog.String("err", err.Error()),

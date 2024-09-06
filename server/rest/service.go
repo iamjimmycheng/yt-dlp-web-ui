@@ -72,6 +72,7 @@ func (s *Service) GetCookies(ctx context.Context) ([]byte, error) {
 }
 
 func (s *Service) SetCookies(ctx context.Context, cookies string) error {
+	//TODO: save cookies in config directory
 	fd, err := os.Create("cookies.txt")
 	if err != nil {
 		return err
