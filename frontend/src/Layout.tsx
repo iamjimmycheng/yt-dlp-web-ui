@@ -1,5 +1,6 @@
 import { ThemeProvider } from '@emotion/react'
 import ArchiveIcon from '@mui/icons-material/Archive'
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload'
 import ChevronLeft from '@mui/icons-material/ChevronLeft'
 import Dashboard from '@mui/icons-material/Dashboard'
 import LiveTvIcon from '@mui/icons-material/LiveTv'
@@ -16,10 +17,9 @@ import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
-import { grey } from '@mui/material/colors'
+import { grey, red } from '@mui/material/colors'
 import { useMemo, useState } from 'react'
 import { Link, Outlet } from 'react-router-dom'
-import { useRecoilValue } from 'recoil'
 import { settingsState } from './atoms/settings'
 import AppBar from './components/AppBar'
 import Drawer from './components/Drawer'
@@ -29,22 +29,27 @@ import SocketSubscriber from './components/SocketSubscriber'
 import ThemeToggler from './components/ThemeToggler'
 import { useI18n } from './hooks/useI18n'
 import Toaster from './providers/ToasterProvider'
+import { useAtomValue } from 'jotai'
+import { getAccentValue } from './utils'
 
 export default function Layout() {
   const [open, setOpen] = useState(false)
 
-  const settings = useRecoilValue(settingsState)
+  const settings = useAtomValue(settingsState)
 
   const mode = settings.theme
   const theme = useMemo(() =>
     createTheme({
       palette: {
         mode: settings.theme,
+        primary: {
+          main: getAccentValue(settings.accent, settings.theme)
+        },
         background: {
           default: settings.theme === 'light' ? grey[50] : '#121212'
         },
       },
-    }), [settings.theme]
+    }), [settings.theme, settings.accent]
   )
 
   const toggleDrawer = () => setOpen(state => !state)
@@ -109,7 +114,7 @@ export default function Layout() {
                 <ListItemText primary={i18n.t('homeButtonLabel')} />
               </ListItemButton>
             </Link>
-            <Link to={'/archive'} style={
+            {/* <Link to={'/archive'} style={
               {
                 textDecoration: 'none',
                 color: mode === 'dark' ? '#ffffff' : '#000000DE'
@@ -118,6 +123,19 @@ export default function Layout() {
               <ListItemButton>
                 <ListItemIcon>
                   <ArchiveIcon />
+                </ListItemIcon>
+                <ListItemText primary={i18n.t('archiveButtonLabel')} />
+              </ListItemButton>
+            </Link> */}
+            <Link to={'/filebrowser'} style={
+              {
+                textDecoration: 'none',
+                color: mode === 'dark' ? '#ffffff' : '#000000DE'
+              }
+            }>
+              <ListItemButton>
+                <ListItemIcon>
+                  <CloudDownloadIcon />
                 </ListItemIcon>
                 <ListItemText primary={i18n.t('archiveButtonLabel')} />
               </ListItemButton>

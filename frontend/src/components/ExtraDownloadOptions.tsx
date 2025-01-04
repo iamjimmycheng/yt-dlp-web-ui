@@ -1,13 +1,22 @@
 import { Autocomplete, Box, TextField, Typography } from '@mui/material'
-import { useRecoilState, useRecoilValue } from 'recoil'
+import { useAtomValue, useSetAtom } from 'jotai'
+import { useEffect } from 'react'
 import { customArgsState, savedTemplatesState } from '../atoms/downloadTemplate'
 import { useI18n } from '../hooks/useI18n'
 
 const ExtraDownloadOptions: React.FC = () => {
   const { i18n } = useI18n()
 
-  const customTemplates = useRecoilValue(savedTemplatesState)
-  const [, setCustomArgs] = useRecoilState(customArgsState)
+  const customTemplates = useAtomValue(savedTemplatesState)
+  const setCustomArgs = useSetAtom(customArgsState)
+
+  useEffect(() => {
+    setCustomArgs(
+      customTemplates
+        .find(f => f.name.toLocaleLowerCase() === 'default')
+        ?.content ?? ''
+    )
+  }, [])
 
   return (
     <>

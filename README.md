@@ -1,3 +1,7 @@
+> [!NOTE]  
+> A poll is up to decide the future of yt-dlp-web-ui frontend! If you're interested you can take part.  
+> https://github.com/marcopiovanello/yt-dlp-web-ui/discussions/223
+
 # yt-dlp Web UI
 
 A not so terrible web ui for yt-dlp. 
@@ -6,14 +10,14 @@ High performance extendeable web ui and RPC server for yt-dlp with low impact on
 
 Created for the only purpose of *fetching* videos from my server/nas and monitor upcoming livestreams. 
 
-**Docker images are available on [Docker Hub](https://hub.docker.com/r/marcobaobao/yt-dlp-webui) or [ghcr.io](https://github.com/marcopeocchi/yt-dlp-web-ui/pkgs/container/yt-dlp-web-ui)**.
+**Docker images are available on [Docker Hub](https://hub.docker.com/r/marcobaobao/yt-dlp-webui) or [ghcr.io](https://github.com/marcopiovanello/yt-dlp-web-ui/pkgs/container/yt-dlp-web-ui)**.
 
 ```sh
 docker pull marcobaobao/yt-dlp-webui
 ```
 ```sh
 # latest dev
-docker pull ghcr.io/marcopeocchi/yt-dlp-web-ui:latest
+docker pull ghcr.io/marcopiovanello/yt-dlp-web-ui:latest
 ```
 
 ## Donate to yt-dlp-webui development
@@ -27,7 +31,7 @@ docker pull ghcr.io/marcopeocchi/yt-dlp-web-ui:latest
 ![image](https://github.com/user-attachments/assets/16450a40-cda6-4c8b-9d20-8ec36282f6ed)
 
 ## Video showcase
-[app.webm](https://github.com/marcopeocchi/yt-dlp-web-ui/assets/35533749/91545bc4-233d-4dde-8504-27422cb26964)
+[app.webm](https://github.com/marcopiovanello/yt-dlp-web-ui/assets/35533749/91545bc4-233d-4dde-8504-27422cb26964)
 
 ## Settings
 
@@ -48,7 +52,7 @@ This feature is disabled by default as this intended to be used to retrieve the 
 
 To enable it just go to the settings page and enable the **Enable video/audio formats selection** flag!
 
-## [Docker](https://github.com/marcopeocchi/yt-dlp-web-ui/pkgs/container/yt-dlp-web-ui) run
+## [Docker](https://github.com/marcopiovanello/yt-dlp-web-ui/pkgs/container/yt-dlp-web-ui) run
 ```sh
 docker pull marcobaobao/yt-dlp-webui
 docker run -d -p 3033:3033 -v <your dir>:/downloads marcobaobao/yt-dlp-webui
@@ -106,7 +110,7 @@ services:
     restart: unless-stopped
 ```
 
-## [Prebuilt binaries](https://github.com/marcopeocchi/yt-dlp-web-ui/releases) installation
+## [Prebuilt binaries](https://github.com/marcopiovanello/yt-dlp-web-ui/releases) installation
 
 ```sh
 # download the latest release from the releases page
@@ -151,6 +155,8 @@ Usage yt-dlp-webui:
         session file path (default ".")
   -user string
         Username required for auth
+  -web string
+        frontend web resources path
 ```
 
 ### Config file
@@ -180,7 +186,7 @@ password: my_random_secret
 queue_size: 4 # min. 2
 
 # [optional] Full path to the yt-dlp (default: "yt-dlp")
-downloaderPath: /usr/local/bin/yt-dlp
+#downloaderPath: /usr/local/bin/yt-dlp
 
 # [optional] Enable file based logging with rotation (default: false)
 #enable_file_logging: false
@@ -193,6 +199,9 @@ downloaderPath: /usr/local/bin/yt-dlp
 
 # [optional] Path where the sqlite database will be created/opened (default: "./local.db")
 #local_database_path
+
+# [optional] Path where a custom frontend will be loaded (instead of the embedded one)
+#frontend_path: ./web/solid-frontend
 ```
 
 ### Systemd integration
@@ -257,6 +266,22 @@ Want to build your own frontend? We got you covered 🤠
 It is **planned** to also expose a **gRPC** server.
 
 For more information open an issue on GitHub and I will provide more info ASAP.
+
+## Custom frontend
+To load a custom frontend you need to specify its path either in the config file ([see config file](#config-file)) or via flags.
+
+The frontend needs to follow this structure:
+```
+path/to/my/frontend
+├── assets
+│   ├── js-chunk-1.js (example)
+│   ├── js-chunk-2.js (example)
+│   ├── style.css (example)
+└── index.html
+```
+
+`assets` is where the resources will be loaded.  
+`index.html` is the entrypoint.
 
 ## Nix
 This repo adds support for Nix(OS) in various ways through a `flake-parts` flake. 

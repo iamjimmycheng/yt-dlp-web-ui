@@ -10,9 +10,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/marcopeocchi/yt-dlp-web-ui/server/config"
-	"github.com/marcopeocchi/yt-dlp-web-ui/server/internal"
-	"github.com/marcopeocchi/yt-dlp-web-ui/server/internal/livestream"
+	"github.com/marcopiovanello/yt-dlp-web-ui/v3/server/config"
+	"github.com/marcopiovanello/yt-dlp-web-ui/v3/server/internal"
+	"github.com/marcopiovanello/yt-dlp-web-ui/v3/server/internal/livestream"
 )
 
 type Service struct {
@@ -133,6 +133,22 @@ func (s *Service) GetTemplates(ctx context.Context) (*[]internal.CustomTemplate,
 	return &templates, nil
 }
 
+func (s *Service) UpdateTemplate(ctx context.Context, t *internal.CustomTemplate) (*internal.CustomTemplate, error) {
+	conn, err := s.db.Conn(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	defer conn.Close()
+
+	_, err = conn.ExecContext(ctx, "UPDATE templates SET name = ?, content = ? WHERE id = ?", t.Name, t.Content, t.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	return t, nil
+}
+
 func (s *Service) DeleteTemplate(ctx context.Context, id string) error {
 	conn, err := s.db.Conn(ctx)
 	if err != nil {
@@ -148,7 +164,7 @@ func (s *Service) DeleteTemplate(ctx context.Context, id string) error {
 
 func (s *Service) GetVersion(ctx context.Context) (string, string, error) {
 	//TODO: load from realease properties file, or anything else outside code
-	const CURRENT_RPC_VERSION = "3.2.1"
+	const CURRENT_RPC_VERSION = "3.2.3"
 
 	result := make(chan string, 1)
 

@@ -16,10 +16,10 @@ import { matchW } from 'fp-ts/lib/TaskEither'
 import { pipe } from 'fp-ts/lib/function'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useRecoilValue } from 'recoil'
 import { serverURL } from '../atoms/settings'
 import { useToast } from '../hooks/toast'
 import { ffetch } from '../lib/httpClient'
+import { useAtomValue } from 'jotai'
 
 const LoginContainer = styled(Container)({
   display: 'flex',
@@ -43,7 +43,7 @@ export default function Login() {
 
   const [formHasError, setFormHasError] = useState(false)
 
-  const url = useRecoilValue(serverURL)
+  const url = useAtomValue(serverURL)
 
   const navigate = useNavigate()
 
@@ -93,7 +93,7 @@ export default function Login() {
           </Title>
           <Title fontWeight={'500'} fontSize={16} color={'gray'}>
             To configure authentication check the&nbsp;
-            <a href='https://github.com/marcopeocchi/yt-dlp-web-ui/wiki/Authentication-methods'>wiki</a>.
+            <a href='https://github.com/marcopiovanello/yt-dlp-web-ui/wiki/Authentication-methods'>wiki</a>.
           </Title>
           <TextField
             label="Username"

@@ -19,16 +19,19 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
-	"github.com/marcopeocchi/yt-dlp-web-ui/server/config"
-	"github.com/marcopeocchi/yt-dlp-web-ui/server/dbutil"
-	"github.com/marcopeocchi/yt-dlp-web-ui/server/handlers"
-	"github.com/marcopeocchi/yt-dlp-web-ui/server/internal"
-	"github.com/marcopeocchi/yt-dlp-web-ui/server/internal/livestream"
-	"github.com/marcopeocchi/yt-dlp-web-ui/server/logging"
-	middlewares "github.com/marcopeocchi/yt-dlp-web-ui/server/middleware"
-	"github.com/marcopeocchi/yt-dlp-web-ui/server/openid"
-	"github.com/marcopeocchi/yt-dlp-web-ui/server/rest"
-	ytdlpRPC "github.com/marcopeocchi/yt-dlp-web-ui/server/rpc"
+	"github.com/marcopiovanello/yt-dlp-web-ui/v3/server/archive"
+	"github.com/marcopiovanello/yt-dlp-web-ui/v3/server/archiver"
+	"github.com/marcopiovanello/yt-dlp-web-ui/v3/server/config"
+	"github.com/marcopiovanello/yt-dlp-web-ui/v3/server/dbutil"
+	"github.com/marcopiovanello/yt-dlp-web-ui/v3/server/handlers"
+	"github.com/marcopiovanello/yt-dlp-web-ui/v3/server/internal"
+	"github.com/marcopiovanello/yt-dlp-web-ui/v3/server/internal/livestream"
+	"github.com/marcopiovanello/yt-dlp-web-ui/v3/server/logging"
+	middlewares "github.com/marcopiovanello/yt-dlp-web-ui/v3/server/middleware"
+	"github.com/marcopiovanello/yt-dlp-web-ui/v3/server/openid"
+	"github.com/marcopiovanello/yt-dlp-web-ui/v3/server/rest"
+	ytdlpRPC "github.com/marcopiovanello/yt-dlp-web-ui/v3/server/rpc"
+	"github.com/marcopiovanello/yt-dlp-web-ui/v3/server/status"
 
 	_ "modernc.org/sqlite"
 )
@@ -145,6 +148,8 @@ func RunBlocking(rc *RunConfig) {
 }
 
 func newServer(c serverConfig) *http.Server {
+	archiver.Register(c.db)
+
 	service := ytdlpRPC.Container(c.mdb, c.mq, c.lm)
 	rpc.Register(service)
 
@@ -174,8 +179,8 @@ func newServer(c serverConfig) *http.Server {
 	// swagger
 	r.Mount("/openapi", http.FileServerFS(c.swagger))
 
-	// Archive routes
-	r.Route("/archive", func(r chi.Router) {
+	// Filebrowser routes
+	r.Route("/filebrowser", func(r chi.Router) {
 		if config.Instance().RequireAuth {
 			r.Use(middlewares.Authenticated)
 		}
@@ -188,6 +193,9 @@ func newServer(c serverConfig) *http.Server {
 		r.Get("/v/{id}", handlers.SendFile)
 		r.Get("/bulk", handlers.BulkDownload(c.mdb))
 	})
+
+	// Archive routes
+	r.Route("/archive", archive.ApplyRouter(c.db))
 
 	// Authentication routes
 	r.Route("/auth", func(r chi.Router) {
@@ -213,6 +221,9 @@ func newServer(c serverConfig) *http.Server {
 
 	// Logging
 	r.Route("/log", logging.ApplyRouter(observableLogger))
+
+	// Status
+	r.Route("/status", status.ApplyRouter(c.mdb))
 
 	return &http.Server{Handler: r}
 }

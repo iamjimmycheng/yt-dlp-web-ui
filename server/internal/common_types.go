@@ -5,11 +5,10 @@ import "time"
 // Used to unmarshall yt-dlp progress
 type ProgressTemplate struct {
 	Percentage string  `json:"percentage"`
-	Speed      float32 `json:"speed"`
+	Speed      float64 `json:"speed"`
 	Size       string  `json:"size"`
-	Eta        float32 `json:"eta"`
+	Eta        float64 `json:"eta"`
 }
-
 
 type PostprocessTemplate struct {
 	FilePath string `json:"filepath"`
@@ -26,8 +25,8 @@ type DownloadOutput struct {
 type DownloadProgress struct {
 	Status     int     `json:"process_status"`
 	Percentage string  `json:"percentage"`
-	Speed      float32 `json:"speed"`
-	ETA        float32 `json:"eta"`
+	Speed      float64 `json:"speed"`
+	ETA        float64 `json:"eta"`
 }
 
 // Used to deser the yt-dlp -J output
@@ -43,27 +42,6 @@ type DownloadInfo struct {
 	OriginalURL string    `json:"original_url"`
 	FileName    string    `json:"filename"`
 	CreatedAt   time.Time `json:"created_at"`
-}
-
-// Used to deser the formats in the -J output
-type DownloadFormats struct {
-	Formats   []Format `json:"formats"`
-	Best      Format   `json:"best"`
-	Thumbnail string   `json:"thumbnail"`
-	Title     string   `json:"title"`
-	URL       string   `json:"url"`
-}
-
-// A skimmed yt-dlp format node
-type Format struct {
-	Format_id   string  `json:"format_id"`
-	Format_note string  `json:"format_note"`
-	FPS         float32 `json:"fps"`
-	Resolution  string  `json:"resolution"`
-	VCodec      string  `json:"vcodec"`
-	ACodec      string  `json:"acodec"`
-	Size        float32 `json:"filesize_approx"`
-	Language    string  `json:"language"`
 }
 
 // struct representing the response sent to the client

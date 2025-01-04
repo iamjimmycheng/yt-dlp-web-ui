@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/marcopeocchi/yt-dlp-web-ui/server/config"
+	"github.com/marcopiovanello/yt-dlp-web-ui/v3/server/config"
 )
 
 var lockFilePath = filepath.Join(config.Instance().Dir(), ".db.lock")
@@ -29,6 +29,21 @@ func Migrate(ctx context.Context, db *sql.DB) error {
 			id CHAR(36) PRIMARY KEY,
 			name VARCHAR(255) NOT NULL,
 			content TEXT NOT NULL
+		)`,
+	); err != nil {
+		return err
+	}
+
+	if _, err := db.ExecContext(
+		ctx,
+		`CREATE TABLE IF NOT EXISTS archive (
+			id CHAR(36) PRIMARY KEY,
+			title VARCHAR(255) NOT NULL,
+			path VARCHAR(255) NOT NULL,
+			thumbnail TEXT,
+			source VARCHAR(255),
+			metadata TEXT,
+			created_at DATETIME
 		)`,
 	); err != nil {
 		return err
